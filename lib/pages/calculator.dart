@@ -22,17 +22,21 @@ class _CalculatorState extends State<Calculator> {
   void handleOperator(key) {
     switch (key.type) {
       case 'number':
-        setState(() => state.update(
-            'value',
-            (value) => value = value.toString() != '0'
-                ? value.toString() + key.character.toString()
-                : value.toString().replaceFirst('0', '') +
-                    key.character.toString()));
+        if (state['value'].toString().length <= 9) {
+          setState(() => state.update(
+              'value',
+              (value) => value = value.toString() != '0'
+                  ? value.toString() + key.character.toString()
+                  : value.toString().replaceFirst('0', '') +
+                      key.character.toString()));
+        }
         break;
 
       case 'operator':
-        state.update('memory_pool',
-            (value) => value = double.parse(state['value'].toString()));
+        state.update(
+            'memory_pool',
+            (value) => value = double.parse(state['value']
+                .toString())); // Store the number to be used on the operation
         setState(() {
           if (key.character != '=') {
             state.update('operation', (value) => value = key.character);
@@ -48,8 +52,7 @@ class _CalculatorState extends State<Calculator> {
 
       case 'setting':
         switch (key.character) {
-          case 'AC':
-            print('Resetando...');
+          case 'AC': //Clear the entire panel and memory
             setState(() {
               state.update('operation', (value) => value = '');
               state.update('value', (value) => value = 0);
@@ -58,14 +61,19 @@ class _CalculatorState extends State<Calculator> {
               state.update('third_number', (value) => value = '');
             });
             break;
+          case 'C': // Clear the last number of panel
+            setState(() {
+              var _value = state['value'].toString();
+              state.update('value',
+                  (value) => value = _value.substring(0, _value.length - 1));
+            });
+            break;
           default:
         }
-
         break;
+
       default:
     }
-
-    print(state);
   }
 
   void calculate() {
@@ -78,7 +86,6 @@ class _CalculatorState extends State<Calculator> {
     switch (operation) {
       case '+':
         result = first_value + second_value;
-        print("${first_value} ${state['operation']} $second_value");
         break;
       case '-':
         result = first_value - second_value;
@@ -90,7 +97,6 @@ class _CalculatorState extends State<Calculator> {
         result = first_value / second_value;
         break;
       default:
-        print('deu ruim aqui');
     }
 
     setState(() {
@@ -127,7 +133,7 @@ class _CalculatorState extends State<Calculator> {
       new Key('+', 'operator'),
       new Key('+/-', 'number'),
       new Key('0', 'number'),
-      new Key(',', 'number'),
+      new Key('.', 'number'),
       new Key('=', 'operator'),
     ];
 
@@ -136,10 +142,10 @@ class _CalculatorState extends State<Calculator> {
       padding: EdgeInsets.all(20),
       children: keys
           .map((key) => Container(
-                margin: EdgeInsets.all(5),
+                margin: EdgeInsets.all(8),
                 child: Material(
                   borderRadius: BorderRadius.circular(20),
-                  color: Color.fromARGB(255, 33, 37, 45),
+                  color: Color.fromARGB(255, 0, 0, 0),
                   child: InkWell(
                     onTap: () => handleOperator(key),
                     child: Center(
@@ -148,8 +154,10 @@ class _CalculatorState extends State<Calculator> {
                         style: TextStyle(
                             color: key.type == 'number'
                                 ? Colors.white
-                                : Colors.greenAccent,
-                            fontSize: 20),
+                                : key.type == 'setting'
+                                    ? Colors.amber
+                                    : Colors.greenAccent,
+                            fontSize: 30),
                       ),
                     ),
                   ),
@@ -161,8 +169,11 @@ class _CalculatorState extends State<Calculator> {
 
   @override
   Widget build(BuildContext builder) {
+    var aspect_ratio =
+        MediaQuery.of(context).size.aspectRatio; // 0.45 - S20 FE / 1.78 - S7
+
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 33, 37, 45),
+      backgroundColor: Color.fromARGB(255, 0, 0, 0),
       body: Column(
         children: [
           Expanded(
@@ -200,11 +211,11 @@ class _CalculatorState extends State<Calculator> {
                         )),
                   ))),
           Expanded(
-              flex: 6,
+              flex: aspect_ratio < 1 ? 3 : 6,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Color.fromARGB(255, 43, 45, 55),
+                  borderRadius: BorderRadius.circular(30),
+                  color: Color.fromARGB(255, 26, 26, 26),
                 ),
                 child: KeyBoard(),
               ))
