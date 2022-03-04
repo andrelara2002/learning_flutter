@@ -21,10 +21,6 @@ class _ConverterState extends State<Converter> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('Counter'),
-      ),
       body: Container(
         color: Colors.black,
         child: Center(
@@ -49,7 +45,8 @@ class _ConverterState extends State<Converter> {
         child: Row(
           children: [
             IconButton(
-                onPressed: () => decreaseCount(), icon: Icon(Icons.arrow_back))
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(Icons.arrow_back_ios_new_rounded))
           ],
         ),
       ),
